@@ -118,10 +118,10 @@ void zns_init_namespace(struct nvmev_ns *ns, uint32_t id, uint64_t size, void *m
 	struct ssdparams spp;
 	struct znsparams zpp;
 
-	NVMEV_INFO("ZNS Storage: size=%lx, mapped_addr=%p\n", size, mapped_addr);
-
 	const uint32_t nr_parts = 1; /* Not support multi partitions for zns*/
 	NVMEV_ASSERT(nr_parts == 1);
+
+	NVMEV_INFO("ZNS Storage: size=%llx, mapped_addr=%p\n", size, mapped_addr);
 
 	ssd = kmalloc(sizeof(struct ssd), GFP_KERNEL);
 	ssd_init_params(&spp, size, nr_parts);
