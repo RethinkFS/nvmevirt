@@ -575,8 +575,10 @@ static int NVMeV_init(void)
 	int ret = 0;
 	
 	nvmev_vdev = VDEV_INIT();
-	if (!nvmev_vdev)
+	if (!nvmev_vdev) {
+		NVMEV_ERROR("Failed to allocate memory for nvmev_vdev (VDEV_INIT)\n");
 		return -EINVAL;
+	}
 
 	if (!__load_configs(&nvmev_vdev->config)) {
 		goto ret_err;
@@ -615,6 +617,11 @@ static void NVMeV_exit(void)
 {
 	int i;
 
+	if (!nvmev_vdev) {
+		NVMEV_ERROR("VDEV_FINALIZE(NULL)\n");
+		return;
+	}
+
 	if (nvmev_vdev->virt_bus != NULL) {
 		pci_stop_root_bus(nvmev_vdev->virt_bus);
 		pci_remove_root_bus(nvmev_vdev->virt_bus);
@@ -627,11 +634,13 @@ static void NVMeV_exit(void)
 	NVMEV_STORAGE_FINAL(nvmev_vdev);
 
 	for (i = 0; i < nvmev_vdev->nr_sq; i++) {
-		kfree(nvmev_vdev->sqes[i]);
+		if (nvmev_vdev->sqes[i])
+			kfree(nvmev_vdev->sqes[i]);
 	}
 
 	for (i = 0; i < nvmev_vdev->nr_cq; i++) {
-		kfree(nvmev_vdev->cqes[i]);
+		if (nvmev_vdev->cqes[i])
+			kfree(nvmev_vdev->cqes[i]);
 	}
 
 	VDEV_FINALIZE(nvmev_vdev);

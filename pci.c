@@ -68,19 +68,19 @@ void nvmev_signal_irq(int msi_index)
 	struct msi_desc *msi_desc;
 	unsigned long idx;
 	// TODO: maynot work...
-	for (i = 0; i < MSI_MAX_DEVICE_IRQDOMAINS; i++) {
-		xa = &(&nvmev_vdev->pdev->dev)->msi.data->__domains[i].store;
+	// for (i = 0; i < MSI_MAX_DEVICE_IRQDOMAINS; i++) {
+	// 	xa = &(&nvmev_vdev->pdev->dev)->msi.data->__domains[i].store;
 
-		//TODO: Does it have to be 0 ~ NR_MAX_IO_QUEUE * PCI_MSIX_ENTRY_SIZE?
-		xa_for_each_range(xa, idx, msi_desc, 0, NR_MAX_IO_QUEUE * PCI_MSIX_ENTRY_SIZE) {
-			if (msi_desc->msi_index == msi_index) {
-				__signal_irq(msi_desc);
-				return;
-			}
-		}
-		NVMEV_INFO("Failed to send IPI\n");
-		BUG_ON(!msi_desc);
-	}
+	// 	//TODO: Does it have to be 0 ~ NR_MAX_IO_QUEUE * PCI_MSIX_ENTRY_SIZE?
+	// 	xa_for_each_range(xa, idx, msi_desc, 0, NR_MAX_IO_QUEUE * PCI_MSIX_ENTRY_SIZE) {
+	// 		if (msi_desc->msi_index == msi_index) {
+	// 			__signal_irq(msi_desc);
+	// 			return;
+	// 		}
+	// 	}
+	// 	NVMEV_INFO("Failed to send IPI\n");
+	// 	BUG_ON(!msi_desc);
+	// }
 }
 #elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 17, 0)
 void nvmev_signal_irq(int msi_index)

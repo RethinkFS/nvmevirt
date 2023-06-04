@@ -55,9 +55,12 @@ static void __init_descriptor(struct zns_ftl *zns_ftl)
 
 static void __remove_descriptor(struct zns_ftl *zns_ftl)
 {
-	kfree(zns_ftl->zwra_buffer);
-	kfree(zns_ftl->report_buffer);
-	kfree(zns_ftl->zone_descs);
+	if (zns_ftl->zwra_buffer)
+		kfree(zns_ftl->zwra_buffer);
+	if (zns_ftl->report_buffer)
+		kfree(zns_ftl->report_buffer);
+	if (zns_ftl->zone_descs)
+		kfree(zns_ftl->zone_descs);
 }
 
 static void __init_resource(struct zns_ftl *zns_ftl)
@@ -149,8 +152,10 @@ void zns_remove_namespace(struct nvmev_ns *ns)
 	ssd_remove(zns_ftl->ssd);
 
 	__remove_descriptor(zns_ftl);
-	kfree(zns_ftl->ssd);
-	kfree(zns_ftl);
+	if (zns_ftl->ssd)
+		kfree(zns_ftl->ssd);
+	if (zns_ftl)
+		kfree(zns_ftl);
 
 	ns->ftls = NULL;
 }

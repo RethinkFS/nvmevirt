@@ -194,7 +194,12 @@ static void ssd_init_nand_page(struct nand_page *pg, struct ssdparams *spp)
 
 static void ssd_remove_nand_page(struct nand_page *pg)
 {
-	kfree(pg->sec);
+	if (!pg) {
+		NVMEV_ERROR("ssd_remove_nand_page(NULL)\n");
+		return;
+	}
+	if (pg->sec)
+		kfree(pg->sec);
 }
 
 static void ssd_init_nand_blk(struct nand_block *blk, struct ssdparams *spp)
@@ -215,10 +220,16 @@ static void ssd_remove_nand_blk(struct nand_block *blk)
 {
 	int i;
 
+	if (!blk) {
+		NVMEV_ERROR("ssd_remove_nand_blk(NULL)\n");
+		return;
+	}
+
 	for (i = 0; i < blk->npgs; i++)
 		ssd_remove_nand_page(&blk->pg[i]);
 
-	kfree(blk->pg);
+	if (blk->pg)
+		kfree(blk->pg);
 }
 
 static void ssd_init_nand_plane(struct nand_plane *pl, struct ssdparams *spp)
@@ -235,10 +246,16 @@ static void ssd_remove_nand_plane(struct nand_plane *pl)
 {
 	int i;
 
+	if (!pl) {
+		NVMEV_ERROR("ssd_remove_nand_plane(NULL)\n");
+		return;
+	}
+
 	for (i = 0; i < pl->nblks; i++)
 		ssd_remove_nand_blk(&pl->blk[i]);
 
-	kfree(pl->blk);
+	if (pl->blk)
+		kfree(pl->blk);
 }
 
 static void ssd_init_nand_lun(struct nand_lun *lun, struct ssdparams *spp)
@@ -257,10 +274,16 @@ static void ssd_remove_nand_lun(struct nand_lun *lun)
 {
 	int i;
 
+	if (!lun) {
+		NVMEV_ERROR("ssd_remove_nand_lun(NULL)\n");
+		return;
+	}
+
 	for (i = 0; i < lun->npls; i++)
 		ssd_remove_nand_plane(&lun->pl[i]);
 
-	kfree(lun->pl);
+	if (lun->pl)
+		kfree(lun->pl);
 }
 
 static void ssd_init_ch(struct ssd_channel *ch, struct ssdparams *spp)
@@ -283,12 +306,19 @@ static void ssd_remove_ch(struct ssd_channel *ch)
 {
 	int i;
 
-	kfree(ch->perf_model);
+	if (!ch) {
+		NVMEV_ERROR("ssd_remove_ch(NULL)\n");
+		return;
+	}
+
+	if (ch->perf_model)
+		kfree(ch->perf_model);
 
 	for (i = 0; i < ch->nluns; i++)
 		ssd_remove_nand_lun(&ch->lun[i]);
 
-	kfree(ch->lun);
+	if (ch->lun)
+		kfree(ch->lun);
 }
 
 static void ssd_init_pcie(struct ssd_pcie *pcie, struct ssdparams *spp)
@@ -330,9 +360,11 @@ void ssd_remove(struct ssd *ssd)
 {
 	uint32_t i;
 
-	kfree(ssd->write_buffer);
+	if (ssd->write_buffer)
+		kfree(ssd->write_buffer);
 	if (ssd->pcie) {
-		kfree(ssd->pcie->perf_model);
+		if (ssd->pcie->perf_model)
+			kfree(ssd->pcie->perf_model);
 		kfree(ssd->pcie);
 	}
 
